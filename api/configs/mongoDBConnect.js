@@ -9,7 +9,7 @@ export const connectMongoDB = async () => {
 
 export const connectTestDB = async () => {
   try {
-    await mongoose.connect(`${process.env.DATABASE_URI}_test`);
+    await mongoose.connect(`${process.env.DATABASE_TEST_URI}-test`);
   } catch (err) {
     console.error(err);
   }
