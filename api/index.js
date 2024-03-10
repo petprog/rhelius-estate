@@ -9,6 +9,7 @@ connectMongoDB();
 const app = App();
 
 const PORT = process.env.PORT || 3000;
+
 mongoose.connection.once("open", () => {
   console.log("Connected to Database");
   app.listen(PORT, () => {
