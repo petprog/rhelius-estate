@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 export const connectMongoDB = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_URI);
+    await mongoose.connect(process.env.DATABASE_LOCAL_URI);
   } catch (err) {
     console.error(err);
   }
@@ -9,7 +9,7 @@ export const connectMongoDB = async () => {
 
 export const connectTestDB = async () => {
   try {
-    await mongoose.connect(`${process.env.DATABASE_TEST_URI}-test`);
+    await mongoose.connect(`${process.env.DATABASE_LOCAL_URI}-test`);
   } catch (err) {
     console.error(err);
   }
