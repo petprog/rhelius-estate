@@ -11,6 +11,8 @@ dotenv.config();
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
+  if (!email || !password || !username)
+    throw errorHandler(400, "email, password and username are required");
   const hashedPassword = hashPassword(password);
   const newUser = new User({
     username,
@@ -27,6 +29,9 @@ export const signup = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
+  if (!email || !password)
+    throw errorHandler(400, "email and password required");
+
   try {
     const validUser = await User.findOne({ email });
     if (!validUser) throw errorHandler(401, "User not found!");
