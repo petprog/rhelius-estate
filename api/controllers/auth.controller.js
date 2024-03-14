@@ -21,7 +21,9 @@ export const signup = async (req, res, next) => {
   });
   try {
     await newUser.save();
-    return res.status(201).send({ message: "User created successfully" });
+    return res
+      .status(201)
+      .send({ message: "User created successfully", success: true });
   } catch (err) {
     next(err);
   }
@@ -44,7 +46,8 @@ export const login = async (req, res, next) => {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(200).send(removePassword(validUser));
+    const rest = removePassword(validUser);
+    res.status(200).send({ ...rest, success: true });
   } catch (err) {
     next(err);
   }

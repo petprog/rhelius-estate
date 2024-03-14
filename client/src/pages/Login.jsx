@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+} from "../redux/user/userSlice";
+
+import { togglePassword } from "../redux/password/passwordSlice";
 
 export default function Login() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
+  const { showPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -18,8 +26,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    dispatch(signInStart());
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -30,19 +37,20 @@ export default function Login() {
       });
       const data = await res.json();
       console.log(data);
-      if (data.success === false) {
+      if (data.success) {
+        dispatch(signInSuccess(data));
+        navigate("/");
+      } else {
         throw new Error(data.message);
       }
-      navigate("/");
     } catch (error) {
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
-    setLoading(false);
   };
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
-    setShowPassword(!showPassword);
+    dispatch(togglePassword());
   };
 
   return (

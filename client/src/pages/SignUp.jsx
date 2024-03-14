@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { togglePassword } from "../redux/password/passwordSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const { showPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -30,10 +33,11 @@ export default function SignUp() {
       });
       const data = await res.json();
       console.log(data);
-      if (data.success === false) {
+      if (data.success) {
+        navigate("/login");
+      } else {
         throw new Error(data.message);
       }
-      navigate("/login");
     } catch (error) {
       setError(error.message);
     }
@@ -42,7 +46,7 @@ export default function SignUp() {
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
-    setShowPassword(!showPassword);
+    dispatch(togglePassword());
   };
   return (
     <div className="p-3 max-w-lg mx-auto">
