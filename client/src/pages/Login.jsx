@@ -8,12 +8,12 @@ import {
   signInSuccess,
 } from "../redux/user/userSlice";
 
-import { togglePassword } from "../redux/password/passwordSlice";
+import { toggleLoginPassword } from "../redux/password/passwordSlice";
 
 export default function Login() {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
-  const { showPassword } = useSelector((state) => state.password);
+  const { showLoginPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -50,7 +50,7 @@ export default function Login() {
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
-    dispatch(togglePassword());
+    dispatch(toggleLoginPassword());
   };
 
   return (
@@ -67,7 +67,7 @@ export default function Login() {
         />
         <div className="relative">
           <input
-            type={showPassword ? "text" : "password"}
+            type={showLoginPassword ? "text" : "password"}
             placeholder="password"
             className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
             id="password"
@@ -78,7 +78,7 @@ export default function Login() {
             className="absolute inset-y-0 right-0 flex items-center px-4 text-slate-600"
             onClick={togglePasswordVisibility}
           >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
+            {showLoginPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
         <button

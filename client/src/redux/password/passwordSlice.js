@@ -1,19 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  showPassword: false,
+  showLoginPassword: false,
+  showSignUpPassword: false,
 };
 
 const passwordSlice = createSlice({
   name: "password",
   initialState,
   reducers: {
-    togglePassword: (state) => {
-      state.showPassword = !state.showPassword;
+    toggleLoginPassword: (state) => {
+      state.showLoginPassword = !state.showLoginPassword;
+    },
+    toggleSignUpPassword: (state) => {
+      state.showSignUpPassword = !state.showSignUpPassword;
     },
   },
 });
 
-export const { togglePassword } = passwordSlice.actions;
+export const { toggleLoginPassword, toggleSignUpPassword } =
+  passwordSlice.actions;
 
 export default passwordSlice.reducer;

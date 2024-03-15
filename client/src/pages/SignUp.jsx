@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { togglePassword } from "../redux/password/passwordSlice";
+import { toggleSignUpPassword } from "../redux/password/passwordSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { showPassword } = useSelector((state) => state.password);
+  const { showSignUpPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -46,7 +46,7 @@ export default function SignUp() {
 
   const togglePasswordVisibility = (e) => {
     e.preventDefault();
-    dispatch(togglePassword());
+    dispatch(toggleSignUpPassword());
   };
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -71,7 +71,7 @@ export default function SignUp() {
         />
         <div className="relative">
           <input
-            type={showPassword ? "text" : "password"}
+            type={showSignUpPassword ? "text" : "password"}
             placeholder="password"
             className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
             id="password"
@@ -82,7 +82,7 @@ export default function SignUp() {
             className="absolute inset-y-0 right-0 flex items-center px-4 text-slate-600"
             onClick={togglePasswordVisibility}
           >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
+            {showSignUpPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
 
