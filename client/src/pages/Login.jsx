@@ -9,6 +9,7 @@ import {
 } from "../redux/user/userSlice";
 
 import { toggleLoginPassword } from "../redux/password/passwordSlice";
+import OAuth from "../components/OAuth";
 
 export default function Login() {
   const [formData, setFormData] = useState({});
@@ -87,6 +88,7 @@ export default function Login() {
         >
           {loading ? "Loading..." : "Login"}
         </button>
+        <OAuth />
       </form>
       <div className="flex gap-2 mt-3 justify-center">
         <p>Don&apos;t no account yet?</p>

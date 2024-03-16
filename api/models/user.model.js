@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    displayName: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: {

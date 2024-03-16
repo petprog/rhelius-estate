@@ -62,10 +62,19 @@ export default function Profile() {
           required
         />
         <input
+          type="text"
+          placeholder="fullname"
+          value={currentUser.displayName ?? ""}
+          className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
+          id="name"
+          onChange={handleChange}
+          required
+        />
+        <input
           type="email"
           disabled
           placeholder="email"
-          value={currentUser.username}
+          value={currentUser.email}
           className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
           id="email"
           onChange={handleChange}
@@ -85,7 +94,7 @@ export default function Profile() {
       >
         {loading ? "Loading..." : "Create Listing"}
       </button>
-      <div className="flex justify-between mt-5">
+      <div className="flex justify-between mt-3">
         <span className="text-red-700 cursor-pointer">Delete Account</span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>

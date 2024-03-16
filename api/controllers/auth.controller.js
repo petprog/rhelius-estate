@@ -52,3 +52,52 @@ export const login = async (req, res, next) => {
     next(err);
   }
 };
+
+export const google = async (req, res, next) => {
+  const { email, name, photo } = req.body;
+  if (!email || !name) throw errorHandler(400, "email, name are required");
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      const rest = removePassword(user);
+      res.status(200).send({ ...rest, success: true });
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = hashPassword(generatedPassword);
+      const newUser = new User({
+        username:
+          name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-4),
+        email,
+        password: hashedPassword,
+        avatar: photo,
+        displayName: name,
+      });
+      try {
+        const result = await newUser.save();
+        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+          expiresIn: "1d",
+        });
+        res.cookie("access_token", token, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        });
+        const rest = removePassword(result);
+        return res.status(201).send({ ...rest, success: true });
+      } catch (err) {
+        next(err);
+      }
+    }
+  } catch (err) {
+    next(err);
+  }
+};
