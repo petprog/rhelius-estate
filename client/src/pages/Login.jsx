@@ -6,6 +6,7 @@ import {
   signInStart,
   signInFailure,
   signInSuccess,
+  resetUser,
 } from "../redux/user/userSlice";
 
 import { toggleLoginPassword } from "../redux/password/passwordSlice";
@@ -27,6 +28,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(resetUser());
     dispatch(signInStart());
     try {
       const res = await fetch("/api/auth/login", {

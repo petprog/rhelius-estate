@@ -12,6 +12,10 @@ import {
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
+  resetUser,
 } from "../redux/user/userSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
 
@@ -37,6 +41,7 @@ export default function Profile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(updateUserStart());
+    dispatch(resetUser());
     try {
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
         method: "POST",
@@ -85,6 +90,24 @@ export default function Profile() {
       );
     } catch (error) {
       setFileUploadError(true);
+    }
+  };
+
+  const handleDeleteAction = async () => {
+    dispatch(deleteUserStart());
+    dispatch(resetUser());
+    try {
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        dispatch(deleteUserSuccess());
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -187,13 +210,21 @@ export default function Profile() {
         {loading ? "Loading..." : "Create Listing"}
       </button>
       <div className="flex justify-between mt-3">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
+        <span
+          onClick={handleDeleteAction}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete Account
+        </span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
       {error && <p className="text-red-500 mt-5">{error}</p>}
       {updateSuccess && (
         <p className="text-green-700 mt-5">User is updated successfully!</p>
       )}
+      {/* {deleteSuccess && (
+        <p className="text-green-700 mt-5">User is deleted successfully!</p>
+      )} */}
     </div>
   );
 }
