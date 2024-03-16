@@ -1,57 +1,70 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useState, useRef, useEffect } from "react";
-// import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { app } from "../firebase";
+import { signInSuccess } from "../redux/user/userSlice";
+import { toggleProfilePassword } from "../redux/password/passwordSlice";
 
 export default function Profile() {
   const { currentUser } = useSelector((state) => state.user);
+  const { showProfilePassword } = useSelector((state) => state.password);
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
-  console.log(formData.avatar);
   const fileRef = useRef(null);
-  // const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(currentUser);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
     });
+    setUser({
+      ...user,
+      [e.target.id]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setLoading(true);
-    // setError(null);
-    // try {
-    //   const res = await fetch("/api/auth/signup", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(formData),
-    //   });
-    //   const data = await res.json();
-    //   console.log(data);
-    //   if (data.success) {
-    //     navigate("/login");
-    //   } else {
-    //     throw new Error(data.message);
-    //   }
-    // } catch (error) {
-    //   setError(error.message);
-    // }
-    // setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        dispatch(signInSuccess(data));
+        navigate("/");
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+    setLoading(false);
+  };
+
+  const togglePasswordVisibility = (e) => {
+    e.preventDefault();
+    dispatch(toggleProfilePassword());
   };
 
   const handleFileUpload = (file) => {
@@ -68,7 +81,7 @@ export default function Profile() {
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setFilePerc(Math.round(progress));
         },
-        (error) => {
+        () => {
           setFileUploadError(true);
         },
         async () => {
@@ -89,7 +102,7 @@ export default function Profile() {
 
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
+      <h1 className="text-3xl font-semibold text-center mt-7 mb-3">Profile</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="file"
@@ -100,62 +113,64 @@ export default function Profile() {
         />
         <img
           onClick={() => fileRef.current.click()}
-          src={
-            formData.avatar
-              ? formData.avatar
-              : currentUser.avatar
-              ? currentUser.avatar
-              : ""
-          }
+          src={formData.avatar || currentUser.avatar || ""}
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
         <p className="text-sm self-center">
           {fileUploadError ? (
-            <span className=" text-red-700">
+            <span className="text-red-700">
               Error Image Uploa (image must be less than 2mb)
             </span>
-          ) : (
-            <span></span>
-          )}
+          ) : null}
           {filePerc > 0 && filePerc < 100 && (
-            <span className=" text-slate-700">Uploading {filePerc}% done</span>
+            <span className="text-slate-700">Uploading {filePerc}% done</span>
           )}
           {filePerc === 100 && (
-            <span className="  text-green-700">
-              Image successfully uploaded
-            </span>
+            <span className="text-green-700">Image successfully uploaded</span>
           )}
         </p>
 
         <input
           type="text"
           placeholder="username"
-          value={currentUser.username}
+          value={user.username}
           className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
-          id="email"
+          id="username"
           onChange={handleChange}
-          required
         />
         <input
           type="text"
           placeholder="fullname"
-          value={currentUser.displayName ?? ""}
+          value={user.displayName || ""}
           className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
-          id="name"
+          id="displayName"
           onChange={handleChange}
-          required
         />
         <input
           type="email"
           disabled
           placeholder="email"
-          value={currentUser.email}
+          value={user.email}
           className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
           id="email"
           onChange={handleChange}
-          required
         />
+        <div className="relative">
+          <input
+            type={showProfilePassword ? "text" : "password"}
+            placeholder="password"
+            className="border p-3 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 "
+            id="password"
+            onChange={handleChange}
+          />
+          <button
+            className="absolute inset-y-0 right-0 flex items-center px-4 text-slate-600"
+            onClick={togglePasswordVisibility}
+          >
+            {showProfilePassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
         <button
           disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"

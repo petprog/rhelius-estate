@@ -1,10 +1,13 @@
 import express from "express";
 import routes from "./routes/index.js";
+import cookieParser from "cookie-parser";
 
 export default function createApp() {
   const app = express();
 
   app.use(express.json());
+
+  app.use(cookieParser());
 
   app.use(routes);
 
