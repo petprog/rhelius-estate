@@ -101,3 +101,14 @@ export const google = async (req, res, next) => {
     next(err);
   }
 };
+
+export const signout = async (req, res, next) => {
+  try {
+    res.clearCookie("access_token");
+    res
+      .status(200)
+      .send({ message: "User has been logged out!", success: true });
+  } catch (err) {
+    next(err);
+  }
+};

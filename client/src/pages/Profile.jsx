@@ -16,6 +16,9 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
   resetUser,
+  signOutStart,
+  signOutSuccess,
+  signOutFailure,
 } from "../redux/user/userSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
 
@@ -93,7 +96,7 @@ export default function Profile() {
     }
   };
 
-  const handleDeleteAction = async () => {
+  const handleDeleteAccount = async () => {
     dispatch(deleteUserStart());
     dispatch(resetUser());
     try {
@@ -111,6 +114,22 @@ export default function Profile() {
     }
   };
 
+  const handleSignout = async () => {
+    dispatch(signOutStart());
+    dispatch(resetUser());
+    try {
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
+      if (data.success) {
+        dispatch(signOutSuccess());
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      dispatch(signOutFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -120,7 +139,7 @@ export default function Profile() {
 
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl font-semibold text-center mt-7 mb-3">Profile</h1>
+      <h1 className="text-3xl font-semibold text-center  mt-4 mb-7">Profile</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="file"
@@ -211,12 +230,14 @@ export default function Profile() {
       </button>
       <div className="flex justify-between mt-3">
         <span
-          onClick={handleDeleteAction}
+          onClick={handleDeleteAccount}
           className="text-red-700 cursor-pointer"
         >
           Delete Account
         </span>
-        <span className="text-red-700 cursor-pointer">Sign out</span>
+        <span onClick={handleSignout} className="text-red-700 cursor-pointer">
+          Sign out
+        </span>
       </div>
       {error && <p className="text-red-500 mt-5">{error}</p>}
       {updateSuccess && (
