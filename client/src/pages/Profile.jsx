@@ -21,6 +21,7 @@ import {
   signOutFailure,
 } from "../redux/user/userSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const { currentUser, loading, error, updateSuccess } = useSelector(
@@ -217,17 +218,19 @@ export default function Profile() {
         </div>
         <button
           disabled={loading}
-          className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
+          className="bg-slate-700 text-white text-center p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
         >
           {loading ? "Loading..." : "Update"}
         </button>
+        <Link
+          disabled={loading}
+          className="bg-green-700  text-white text-center p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
+          to="/create-listing"
+        >
+          Create Listing
+        </Link>
       </form>
-      <button
-        disabled={loading}
-        className="bg-green-700 w-full text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70 mt-5"
-      >
-        {loading ? "Loading..." : "Create Listing"}
-      </button>
+
       <div className="flex justify-between mt-3">
         <span
           onClick={handleDeleteAccount}
