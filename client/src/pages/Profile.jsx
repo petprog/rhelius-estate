@@ -65,8 +65,7 @@ export default function Profile() {
     }
   };
 
-  const togglePasswordVisibility = (e) => {
-    e.preventDefault();
+  const togglePasswordVisibility = () => {
     dispatch(toggleProfilePassword());
   };
 
@@ -210,6 +209,7 @@ export default function Profile() {
             onChange={handleChange}
           />
           <button
+            type="button"
             className="absolute inset-y-0 right-0 flex items-center px-4 text-slate-600"
             onClick={togglePasswordVisibility}
           >
