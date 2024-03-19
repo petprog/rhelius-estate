@@ -12,7 +12,7 @@ dotenv.config();
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
   if (!email || !password || !username)
-    throw errorHandler(400, "email, password and username are required");
+    return next(errorHandler(400, "email, password and username are required"));
   const hashedPassword = hashPassword(password);
   const newUser = new User({
     username,
@@ -32,7 +32,7 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password)
-    throw errorHandler(400, "email and password required");
+    return next(errorHandler(400, "email and password required"));
 
   try {
     const validUser = await User.findOne({ email });
@@ -55,7 +55,9 @@ export const login = async (req, res, next) => {
 
 export const google = async (req, res, next) => {
   const { email, name, photo } = req.body;
-  if (!email || !name) throw errorHandler(400, "email, name are required");
+  if (!email || !name)
+    return next(errorHandler(400, "email, name are required"));
+
   try {
     const user = await User.findOne({ email: email });
     if (user) {
