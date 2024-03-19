@@ -22,6 +22,7 @@ import {
 } from "../redux/user/userSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
 import { Link } from "react-router-dom";
+import { FaTrash, FaRegEdit } from "react-icons/fa";
 
 export default function Profile() {
   const { currentUser, loading, error, updateSuccess } = useSelector(
@@ -33,7 +34,10 @@ export default function Profile() {
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const fileRef = useRef(null);
+  const [showListingsError, setShowListingsError] = useState(null);
+  const [loadingListings, setLoadingListings] = useState(false);
   const dispatch = useDispatch();
+  const [userListings, setUserListings] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
@@ -137,6 +141,24 @@ export default function Profile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
+  const handleShowListings = async () => {
+    setLoadingListings(true);
+    setShowListingsError(null);
+    try {
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success) {
+        setUserListings(data.data);
+        setLoadingListings(false);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      setShowListingsError(error.message);
+      setLoadingListings(false);
+    }
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center  mt-4 mb-7">Profile</h1>
@@ -231,7 +253,7 @@ export default function Profile() {
         </Link>
       </form>
 
-      <div className="flex justify-between mt-3">
+      <div className="flex justify-between mt-3 font-semibold">
         <span
           onClick={handleDeleteAccount}
           className="text-red-700 cursor-pointer"
@@ -246,9 +268,61 @@ export default function Profile() {
       {updateSuccess && (
         <p className="text-green-700 mt-5">User is updated successfully!</p>
       )}
-      {/* {deleteSuccess && (
-        <p className="text-green-700 mt-5">User is deleted successfully!</p>
-      )} */}
+      <button
+        type="button"
+        onClick={handleShowListings}
+        className="text-green-700 mt-2 font-semibold w-full"
+      >
+        Show Listings
+      </button>
+      {showListingsError && (
+        <p className="text-red-500 mt-5">{showListingsError}</p>
+      )}
+      {loadingListings && (
+        <div className="h-20 w-full flex items-center justify-center">
+          Loading...
+        </div>
+      )}
+      {userListings.length > 0 && (
+        <div>
+          <h2 className="mt-5 mb-2 text-xl text-center font-semibold">
+            Your Listings
+          </h2>
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className="flex items-center justify-between py-3 px-3 mb-3 gap-4"
+            >
+              <Link
+                to={`/listing/${listing._id}`}
+                className="flex items-center"
+              >
+                <img
+                  src={listing.imageUrls[0]}
+                  alt="listing cover"
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
+                <p className="font-semibold">{listing.name}</p>
+              </Link>
+
+              <div className="flex w-20 justify-between ">
+                <FaRegEdit
+                  // onClick={() => handleEditListing(listing._id)}
+                  className="text-white font-semibold text-4xl p-2 rounded-lg bg-green-600"
+                >
+                  Delete
+                </FaRegEdit>
+                <FaTrash
+                  // onClick={() => handleDeleteListing(index)}
+                  className="text-white font-semibold text-4xl p-2 rounded-lg bg-red-600"
+                >
+                  Delete
+                </FaTrash>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
