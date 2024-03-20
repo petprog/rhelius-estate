@@ -20,8 +20,9 @@ import {
   signOutSuccess,
   signOutFailure,
 } from "../redux/user/userSlice";
+import { updateListing } from "../redux/listing/listingSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaTrash, FaRegEdit } from "react-icons/fa";
 
 export default function Profile() {
@@ -38,6 +39,7 @@ export default function Profile() {
   const [loadingListings, setLoadingListings] = useState(false);
   const dispatch = useDispatch();
   const [userListings, setUserListings] = useState([]);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -178,6 +180,11 @@ export default function Profile() {
     }
   };
 
+  const handleUpdateListing = (listing) => {
+    dispatch(updateListing(listing));
+    navigate(`/listing/${listing._id}`);
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center  mt-4 mb-7">Profile</h1>
@@ -266,7 +273,7 @@ export default function Profile() {
         <Link
           disabled={loading}
           className="bg-green-700  text-white text-center p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
-          to="/create-listing"
+          to="/listing/new"
         >
           Create Listing
         </Link>
@@ -313,7 +320,7 @@ export default function Profile() {
               className="flex items-center justify-between px-3 gap-4"
             >
               <Link
-                to={`/listing/${listing._id}`}
+                to={`/listings/${listing._id}`}
                 className="flex items-center flex-1"
               >
                 <img
@@ -328,7 +335,7 @@ export default function Profile() {
 
               <div className="flex w-20 justify-between ">
                 <FaRegEdit
-                  // onClick={() => handleEditListing(listing._id)}
+                  onClick={() => handleUpdateListing(listing)}
                   className="text-white font-semibold text-3xl p-2 rounded-lg bg-green-600"
                 >
                   Delete

@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   return (
-    <header className="bg-slate-200 shadow-md">
+    <header className="bg-slate-200 shadow-md w-full">
       <div className="flex justify-between items-center max-w-6xl mx-auto py-3 px-4 ">
         {/* Brand name */}
         <Link to="/">

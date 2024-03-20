@@ -4,7 +4,11 @@ export const createListing = async (req, res, next) => {
   try {
     const result = await Listing.create(req.body);
     const listing = result._doc;
-    return res.status(201).send({ ...listing, success: true });
+    return res.status(201).send({
+      message: "Listing has been created successfully.",
+      success: true,
+      data: listing,
+    });
   } catch (err) {
     next(err);
   }
@@ -39,6 +43,21 @@ export const updateListing = async (req, res, next) => {
       message: "Listing has been updated.",
       success: true,
       data: updatedListing,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getListing = async (req, res, next) => {
+  try {
+    const result = await Listing.findById(req.params.id);
+    if (!result) return next(errorHandler(404, "Listing not found!"));
+    const listing = result._doc;
+    res.status(200).send({
+      message: "Listing has been updated.",
+      success: true,
+      data: listing,
     });
   } catch (err) {
     next(err);

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import {
   Home,
   About,
@@ -6,13 +6,14 @@ import {
   Logout,
   Profile,
   SignUp,
-  CreateListing,
+  CreateOrUpdateListing,
+  Missing,
 } from "./pages";
 import { Header, PrivateRoute } from "./components";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <div className="min-h-screen">
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -23,8 +24,9 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
         </Route>
-        <Route path="/create-listing" element={<CreateListing />} />
+        <Route path="/listing/:listingId" element={<CreateOrUpdateListing />} />
+        <Route path="*" element={<Missing />} />
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 }
