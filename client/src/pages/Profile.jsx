@@ -159,6 +159,25 @@ export default function Profile() {
     }
   };
 
+  const handleDeleteListing = async (listingId) => {
+    setShowListingsError(null);
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUserListings((prev) =>
+          prev.filter((listing) => listing._id !== listingId)
+        );
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      setShowListingsError(error.message);
+    }
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center  mt-4 mb-7">Profile</h1>
@@ -291,30 +310,32 @@ export default function Profile() {
           {userListings.map((listing) => (
             <div
               key={listing._id}
-              className="flex items-center justify-between py-3 px-3 mb-3 gap-4"
+              className="flex items-center justify-between px-3 gap-4"
             >
               <Link
                 to={`/listing/${listing._id}`}
-                className="flex items-center"
+                className="flex items-center flex-1"
               >
                 <img
                   src={listing.imageUrls[0]}
                   alt="listing cover"
-                  className="w-20 h-20 object-cover rounded-lg"
+                  className="w-16 h-16 object-contain rounded-lg"
                 />
-                <p className="font-semibold">{listing.name}</p>
+                <p className="text-slate-700 font-semibold hover:underline truncate flex-1">
+                  {listing.name}
+                </p>
               </Link>
 
               <div className="flex w-20 justify-between ">
                 <FaRegEdit
                   // onClick={() => handleEditListing(listing._id)}
-                  className="text-white font-semibold text-4xl p-2 rounded-lg bg-green-600"
+                  className="text-white font-semibold text-3xl p-2 rounded-lg bg-green-600"
                 >
                   Delete
                 </FaRegEdit>
                 <FaTrash
-                  // onClick={() => handleDeleteListing(index)}
-                  className="text-white font-semibold text-4xl p-2 rounded-lg bg-red-600"
+                  onClick={() => handleDeleteListing(listing._id)}
+                  className="text-white font-semibold text-3xl p-2 rounded-lg bg-red-600"
                 >
                   Delete
                 </FaTrash>
