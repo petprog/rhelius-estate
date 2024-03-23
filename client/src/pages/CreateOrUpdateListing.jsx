@@ -43,7 +43,7 @@ export default function CreateOrUpdateListing() {
 
   useEffect(() => {
     const listingId = params.listingId;
-    if (listingId === currentListing._id) {
+    if (listingId === currentListing?._id) {
       setFormData(currentListing);
       setValidPath(true);
     }

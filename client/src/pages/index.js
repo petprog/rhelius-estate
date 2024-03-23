@@ -6,6 +6,7 @@ import Profile from "./Profile";
 import SignUp from "./SignUp";
 import CreateOrUpdateListing from "./CreateOrUpdateListing";
 import Missing from "./Missing";
+import Listing from "./Listing";
 
 export {
   Home,
@@ -16,4 +17,5 @@ export {
   SignUp,
   CreateOrUpdateListing,
   Missing,
+  Listing,
 };

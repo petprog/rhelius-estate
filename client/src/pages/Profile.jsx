@@ -23,7 +23,9 @@ import {
 import { updateListing } from "../redux/listing/listingSlice";
 import { toggleProfilePassword } from "../redux/password/passwordSlice";
 import { Link, useNavigate } from "react-router-dom";
-import { FaTrash, FaRegEdit } from "react-icons/fa";
+
+import ProfileListingLoading from "../components/ProfileListingLoading";
+import ProfileListingTile from "../components/ProfileListingTile";
 
 export default function Profile() {
   const { currentUser, loading, error, updateSuccess } = useSelector(
@@ -144,6 +146,7 @@ export default function Profile() {
   }, [file]);
 
   const handleShowListings = async () => {
+    setUserListings([]);
     setLoadingListings(true);
     setShowListingsError(null);
     try {
@@ -304,50 +307,19 @@ export default function Profile() {
       {showListingsError && (
         <p className="text-red-500 mt-5">{showListingsError}</p>
       )}
-      {loadingListings && (
-        <div className="h-20 w-full flex items-center justify-center">
-          Loading...
-        </div>
-      )}
+      {loadingListings && <ProfileListingLoading />}
       {userListings.length > 0 && (
         <div>
           <h2 className="mt-5 mb-2 text-xl text-center font-semibold">
             Your Listings
           </h2>
           {userListings.map((listing) => (
-            <div
+            <ProfileListingTile
               key={listing._id}
-              className="flex items-center justify-between px-3 gap-4"
-            >
-              <Link
-                to={`/listings/${listing._id}`}
-                className="flex items-center flex-1"
-              >
-                <img
-                  src={listing.imageUrls[0]}
-                  alt="listing cover"
-                  className="w-16 h-16 object-contain rounded-lg"
-                />
-                <p className="text-slate-700 font-semibold hover:underline truncate flex-1">
-                  {listing.name}
-                </p>
-              </Link>
-
-              <div className="flex w-20 justify-between ">
-                <FaRegEdit
-                  onClick={() => handleUpdateListing(listing)}
-                  className="text-white font-semibold text-3xl p-2 rounded-lg bg-green-600"
-                >
-                  Delete
-                </FaRegEdit>
-                <FaTrash
-                  onClick={() => handleDeleteListing(listing._id)}
-                  className="text-white font-semibold text-3xl p-2 rounded-lg bg-red-600"
-                >
-                  Delete
-                </FaTrash>
-              </div>
-            </div>
+              listing={listing}
+              handleUpdateListing={handleUpdateListing}
+              handleDeleteListing={handleDeleteListing}
+            />
           ))}
         </div>
       )}
