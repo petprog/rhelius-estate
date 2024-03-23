@@ -164,7 +164,7 @@ export default function CreateOrUpdateListing() {
         setLoading(false);
         setError(null);
         setSuccess(true);
-        navigate(isNewListing ? `/listings/${data._id}` : `/profile`);
+        navigate(isNewListing ? `/listings/${data.data._id}` : `/profile`);
       } else {
         throw new Error(data.message);
       }
