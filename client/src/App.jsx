@@ -3,12 +3,12 @@ import {
   Home,
   About,
   Login,
-  Logout,
   Profile,
   SignUp,
   CreateOrUpdateListing,
   Missing,
   Listing,
+  Search,
 } from "./pages";
 import { Header, PrivateRoute } from "./components";
 export default function App() {
@@ -20,7 +20,6 @@ export default function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/logout" element={<Logout />} />
         <Route path="/listings/:listingId" element={<Listing />} />
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
@@ -31,6 +30,7 @@ export default function App() {
             element={<CreateOrUpdateListing />}
           />
         </Route>
+        <Route path="/search" element={<Search />} />
         <Route path="*" element={<Missing />} />
       </Routes>
     </div>
