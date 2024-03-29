@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ListingLoading from "../components/ListingLoading";
+import ListingTile from "../components/ListingTile";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -16,7 +17,8 @@ export default function Search() {
 
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
+  const [filter, setFilter] = useState(false);
 
   const handleChange = (e) => {
     if (e.target.id === "searchTerm") {
@@ -97,7 +99,6 @@ export default function Search() {
       setLoading(true);
       setError(null);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 10000));
         const searchQuery = urlParams.toString();
         const res = await fetch(`/api/listing/get?${searchQuery}`);
         const data = await res.json();
@@ -117,131 +118,151 @@ export default function Search() {
 
   return (
     <div className=" min-h-[calc(100vh-72px)] flex flex-col gap-4 md:flex-row">
-      <aside className="p-7 max-md:border-b-2 sm:border-r-2">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-7">
-          <div className="flex gap-4 items-center">
-            <input
-              className="
+      {filter && (
+        <aside className="p-7 max-md:border-b-2 sm:border-r-2">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-7">
+            <div className="flex gap-4 items-center">
+              <input
+                className="
               border p-2 rounded-lg w-full  border-gray-300 outline-none focus:border-slate-700  focus:border-x-2 focus:border-y-2 h-10"
-              type="text"
-              id="searchTerm"
-              placeholder="Search..."
-              value={sidebarData.searchTerm}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="flex gap-4 flex-wrap items-center">
-            <span className="font-medium whitespace-nowrap">Type:</span>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="all"
-                className="w-4 h-4"
-                onChange={handleChange}
-                checked={sidebarData.type === "all"}
-              />
-              <label className="whitespace-nowrap" htmlFor="all">
-                Rent & Sale
-              </label>
-            </div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="rent"
-                className="w-4 h-4"
-                checked={sidebarData.type === "rent"}
+                type="text"
+                id="searchTerm"
+                placeholder="Search..."
+                value={sidebarData.searchTerm}
                 onChange={handleChange}
               />
-              <label className="whitespace-nowrap" htmlFor="rent">
-                Rent
-              </label>
             </div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="sale"
-                className="w-4 h-4"
-                checked={sidebarData.type === "sale"}
+            <div className="flex gap-4 flex-wrap items-center">
+              <span className="font-medium whitespace-nowrap">Type:</span>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="all"
+                  className="w-4 h-4"
+                  onChange={handleChange}
+                  checked={sidebarData.type === "all"}
+                />
+                <label className="whitespace-nowrap" htmlFor="all">
+                  Rent & Sale
+                </label>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="rent"
+                  className="w-4 h-4"
+                  checked={sidebarData.type === "rent"}
+                  onChange={handleChange}
+                />
+                <label className="whitespace-nowrap" htmlFor="rent">
+                  Rent
+                </label>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="sale"
+                  className="w-4 h-4"
+                  checked={sidebarData.type === "sale"}
+                  onChange={handleChange}
+                />
+                <label className="whitespace-nowrap" htmlFor="sale">
+                  Sale
+                </label>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="offer"
+                  className="w-4 h-4"
+                  checked={sidebarData.offer}
+                  onChange={handleChange}
+                />
+                <label className="whitespace-nowrap" htmlFor="offer">
+                  Offer
+                </label>
+              </div>
+            </div>
+            <div className="flex gap-4 flex-wrap items-center">
+              <span className="font-medium whitespace-nowrap">Amenities:</span>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="parking"
+                  className="w-4 h-4"
+                  checked={sidebarData.parking}
+                  onChange={handleChange}
+                />
+                <label className="whitespace-nowrap" htmlFor="parking">
+                  Parking
+                </label>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  id="furnished"
+                  className="w-4 h-4"
+                  checked={sidebarData.furnished}
+                  onChange={handleChange}
+                />
+                <label className="whitespace-nowrap" htmlFor="furnished">
+                  Furnished
+                </label>
+              </div>
+            </div>
+            <div className="flex gap-4 flex-wrap items-center">
+              <label
+                htmlFor="sort_order"
+                className="font-medium whitespace-nowrap"
+              >
+                Sort:
+              </label>
+              <select
+                id="sort_order"
+                className=" p-2 rounded-lg border"
+                value={`${sidebarData.sort}_${sidebarData.order}`}
                 onChange={handleChange}
-              />
-              <label className="whitespace-nowrap" htmlFor="sale">
-                Sale
-              </label>
+              >
+                <option value="regularPrice_desc">Price high to low</option>
+                <option value="regularPrice_asc">Price low to high</option>
+                <option value="createdAt_desc">Latest</option>
+                <option value="createdAt_asc">Oldest</option>
+              </select>
             </div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="offer"
-                className="w-4 h-4"
-                checked={sidebarData.offer}
-                onChange={handleChange}
-              />
-              <label className="whitespace-nowrap" htmlFor="offer">
-                Offer
-              </label>
-            </div>
-          </div>
-          <div className="flex gap-4 flex-wrap items-center">
-            <span className="font-medium whitespace-nowrap">Amenities:</span>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="parking"
-                className="w-4 h-4"
-                checked={sidebarData.parking}
-                onChange={handleChange}
-              />
-              <label className="whitespace-nowrap" htmlFor="parking">
-                Parking
-              </label>
-            </div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                id="furnished"
-                className="w-4 h-4"
-                checked={sidebarData.furnished}
-                onChange={handleChange}
-              />
-              <label className="whitespace-nowrap" htmlFor="furnished">
-                Furnished
-              </label>
-            </div>
-          </div>
-          <div className="flex gap-4 flex-wrap items-center">
-            <label
-              htmlFor="sort_order"
-              className="font-medium whitespace-nowrap"
-            >
-              Sort:
-            </label>
-            <select
-              id="sort_order"
-              className=" p-2 rounded-lg border"
-              value={`${sidebarData.sort}_${sidebarData.order}`}
-              onChange={handleChange}
-            >
-              <option value="regularPrice_desc">Price high to low</option>
-              <option value="regularPrice_asc">Price low to high</option>
-              <option value="createdAt_desc">Latest</option>
-              <option value="createdAt_asc">Oldest</option>
-            </select>
-          </div>
-          <button className="bg-slate-700 text-white text-center p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-70">
-            Search
+            <button className="bg-slate-700 text-white text-center p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-70">
+              Search
+            </button>
+          </form>
+        </aside>
+      )}
+      <main className="flex-1">
+        <div className="flex justify-end p-3">
+          {/* filter */}
+          <button
+            onClick={() => setFilter(!filter)}
+            className="bg-slate-700 text-white text-center p-2 w-40 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
+          >
+            Filter
           </button>
-        </form>
-      </aside>
-      <main>
-        <h2 className="text-2xl font-semibold p-3 text-slate-700">
-          Listing Results
-        </h2>
-        <div className="">
+        </div>
+
+        <>
           {loading && <ListingLoading />}
           {!loading && listings.length === 0 && (
-            <p className="text-xl text-slate-700">No Listing found!</p>
+            <div className="">
+              <p className="text-xl text-slate-700 text-center mt-16">
+                No Listing found!
+              </p>
+            </div>
           )}
-        </div>
+          <div className="p-7 flex flex-wrap gap-4">
+            {!loading &&
+              listings.length > 0 &&
+              listings.map((listing) => (
+                <ListingTile key={listing._id} listing={listing} />
+              ))}
+          </div>
+        </>
       </main>
     </div>
   );

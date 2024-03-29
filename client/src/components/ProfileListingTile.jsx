@@ -9,7 +9,7 @@ export default function ProfileListingTile({
   const { _id, imageUrls, name } = listing;
   return (
     <div className="flex items-center justify-between px-3 gap-4">
-      <Link to={`/listings/${_id}`} className="flex items-center flex-1">
+      <Link to={`/listings/${_id}`} className="flex items-center flex-1 gap-2">
         <img
           src={imageUrls[0]}
           alt="listing cover"

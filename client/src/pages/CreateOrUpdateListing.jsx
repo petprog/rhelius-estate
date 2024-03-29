@@ -9,13 +9,11 @@ import { app } from "../firebase";
 import { FaTrash, FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { Missing } from ".";
 
 export default function CreateOrUpdateListing() {
   const navigate = useNavigate();
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
-  const { currentListing } = useSelector((state) => state.listing);
   const isNewListing = params.listingId === "new";
   const [validPath, setValidPath] = useState(isNewListing);
   const [formData, setFormData] = useState({
@@ -42,12 +40,25 @@ export default function CreateOrUpdateListing() {
   const [rent, setRent] = useState(true);
 
   useEffect(() => {
-    const listingId = params.listingId;
-    if (listingId === currentListing?._id) {
-      setFormData(currentListing);
-      setValidPath(true);
+    const fetchingListing = async () => {
+      const listingId = params.listingId;
+      try {
+        const res = await fetch(`/api/listing/get/${listingId}`);
+        const data = await res.json();
+        if (data.success) {
+          if (data.data.userRef === currentUser._id) {
+            setValidPath(true);
+            setFormData(data.data);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (!isNewListing) {
+      fetchingListing();
     }
-  }, [currentListing, params.listingId]);
+  }, [isNewListing, params.listingId, currentUser._id]);
 
   const handleChange = (e) => {
     if (e.target.id === "sale" || e.target.id === "rent") {
@@ -177,15 +188,12 @@ export default function CreateOrUpdateListing() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleListing(
-      isNewListing,
-      currentListing ? currentListing._id : null
-    );
+    await handleListing(isNewListing, params.listingId);
   };
 
   return (
     <>
-      {validPath ? (
+      {validPath && (
         <main className="p-3 mx-auto max-w-4xl">
           <h1 className="text-3xl font-semibold text-center mt-4 mb-7">
             {isNewListing ? "Create" : "Update"} Listing
@@ -432,8 +440,6 @@ export default function CreateOrUpdateListing() {
             </div>
           </form>
         </main>
-      ) : (
-        <Missing />
       )}
     </>
   );
