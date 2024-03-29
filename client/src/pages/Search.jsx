@@ -19,6 +19,8 @@ export default function Search() {
   const [listings, setListings] = useState([]);
   const [, setError] = useState(null);
   const [filter, setFilter] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const limit = 9;
 
   const handleChange = (e) => {
     if (e.target.id === "searchTerm") {
@@ -65,6 +67,27 @@ export default function Search() {
     navigate(`/search?${searchQuery}`);
   };
 
+  const onShowMoreClick = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    try {
+      const res = await fetch(`/api/listing/get?${searchQuery}`);
+      const resultData = await res.json();
+      const data = resultData.data;
+      if (data.length < limit) {
+        setShowMore(false);
+      } else {
+        setShowMore(true);
+      }
+      setListings([...listings, ...data]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get("searchTerm");
@@ -98,10 +121,14 @@ export default function Search() {
     const fetchListings = async () => {
       setLoading(true);
       setError(null);
+      setShowMore(false);
       try {
         const searchQuery = urlParams.toString();
         const res = await fetch(`/api/listing/get?${searchQuery}`);
         const data = await res.json();
+        if (data.data.length >= limit) {
+          setShowMore(true);
+        }
         setError(null);
         setListings(data.data);
         setLoading(false);
@@ -255,12 +282,22 @@ export default function Search() {
               </p>
             </div>
           )}
-          <div className="p-7 flex flex-wrap gap-4">
-            {!loading &&
-              listings.length > 0 &&
-              listings.map((listing) => (
-                <ListingTile key={listing._id} listing={listing} />
-              ))}
+          <div className="p-7 flex flex-col gap-2">
+            <div className="flex flex-wrap gap-4">
+              {!loading &&
+                listings.length > 0 &&
+                listings.map((listing) => (
+                  <ListingTile key={listing._id} listing={listing} />
+                ))}
+            </div>
+            {showMore && (
+              <button
+                onClick={onShowMoreClick}
+                className="text-green-700 hover:underline text-center w-full"
+              >
+                Show more
+              </button>
+            )}
           </div>
         </>
       </main>
