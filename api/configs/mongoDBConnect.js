@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 export const connectMongoDB = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_LOCAL_URI);
+    await mongoose.connect(process.env.DATABASE_PROD_URI);
   } catch (err) {
     console.error(err);
   }

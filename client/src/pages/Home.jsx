@@ -89,68 +89,70 @@ export default function Home() {
         </Swiper>
       )}
       {/* listing */}
-      <section className="min-h-[calc(100vh-72px)] p-10 max-w-6xl mx-auto">
-        <div className="mb-3 flex justify-between">
-          <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
-            Recent offers
-          </h2>
-          <Link
-            className=" flex gap-2 items-center font-semibold text-slate-700"
-            to="/search?offer=true"
-          >
-            Show more <FaChevronCircleRight />
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-8">
-          {offerListings &&
-            offerListings.length > 0 &&
-            offerListings.map((listing) => (
+      {offerListings && offerListings.length > 0 && (
+        <section className="min-h-[calc(100vh-72px)] p-6 max-w-6xl mx-auto">
+          <div className="mb-3 flex justify-between">
+            <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
+              Recent offers
+            </h2>
+            <Link
+              className=" flex gap-2 items-center font-semibold text-slate-700"
+              to="/search?offer=true"
+            >
+              Show more <FaChevronCircleRight />
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-8">
+            {offerListings.map((listing) => (
               <ListingTile key={listing._id} listing={listing} />
             ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
-      <section className="min-h-[calc(100vh-72px)] p-10 max-w-6xl mx-auto">
-        <div className="mb-3 flex justify-between">
-          <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
-            Recent place for rent
-          </h2>
-          <Link
-            className=" flex gap-2 items-center font-semibold text-slate-700"
-            to="/search?type=rent"
-          >
-            Show more <FaChevronCircleRight />
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-8">
-          {rentListings &&
-            rentListings.length > 0 &&
-            rentListings.map((listing) => (
-              <ListingTile key={listing._id} listing={listing} />
-            ))}
-        </div>
-      </section>
-      <section className="min-h-[calc(100vh-72px)] p-10 max-w-6xl mx-auto">
-        <div className="mb-3 flex justify-between">
-          <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
-            Recent place for sale
-          </h2>
-          <Link
-            className=" flex gap-2 items-center font-semibold text-slate-700"
-            to="/search?type=sale"
-          >
-            Show more <FaChevronCircleRight />
-          </Link>
-        </div>
+      {rentListings && rentListings.length > 0 && (
+        <section className="min-h-[calc(100vh-72px)] p-6 max-w-6xl mx-auto">
+          <div className="mb-3 flex justify-between">
+            <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
+              Recent place for rent
+            </h2>
+            <Link
+              className=" flex gap-2 items-center font-semibold text-slate-700"
+              to="/search?type=rent"
+            >
+              Show more <FaChevronCircleRight />
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-8">
+            {rentListings &&
+              rentListings.length > 0 &&
+              rentListings.map((listing) => (
+                <ListingTile key={listing._id} listing={listing} />
+              ))}
+          </div>
+        </section>
+      )}
+      {saleListings && saleListings.length > 0 && (
+        <section className="min-h-[calc(100vh-72px)] p-6 max-w-6xl mx-auto">
+          <div className="mb-3 flex justify-between">
+            <h2 className="text-xl sm:text-2xl text-slate-700 mb-2 font-semibold">
+              Recent place for sale
+            </h2>
+            <Link
+              className=" flex gap-2 items-center font-semibold text-slate-700"
+              to="/search?type=sale"
+            >
+              Show more <FaChevronCircleRight />
+            </Link>
+          </div>
 
-        <div className="flex flex-wrap gap-8">
-          {saleListings &&
-            saleListings.length > 0 &&
-            saleListings.map((listing) => (
+          <div className="flex flex-wrap gap-8">
+            {saleListings.map((listing) => (
               <ListingTile key={listing._id} listing={listing} />
             ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
