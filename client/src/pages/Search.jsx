@@ -18,7 +18,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
   const [, setError] = useState(null);
-  const [filter, setFilter] = useState(false);
+  const [filter, setFilter] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const limit = 9;
 
