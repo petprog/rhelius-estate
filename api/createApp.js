@@ -1,8 +1,10 @@
 import express from "express";
 import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 export default function createApp() {
+  const __dirname = path.resolve();
   const app = express();
 
   app.use(express.json());
@@ -10,6 +12,12 @@ export default function createApp() {
   app.use(cookieParser());
 
   app.use(routes);
+
+  app.use(express.static(path.join(__dirname, "/client/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+  });
 
   app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
