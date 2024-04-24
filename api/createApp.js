@@ -2,10 +2,13 @@ import express from "express";
 import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import cors from "cors";
+import { corsOptions } from "./configs/corsOptions.js";
 
 export default function createApp() {
   const __dirname = path.resolve();
   const app = express();
+  app.use(cors(corsOptions));
 
   app.use(express.json());
 

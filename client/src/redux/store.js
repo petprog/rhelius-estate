@@ -4,8 +4,10 @@ import passwordReducer from "./password/passwordSlice.js";
 import listingReducer from "./listing/listingSlice.js";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { apiSlice } from "./api/apiSlice.js";
 
 const rootReducer = combineReducers({
+  [apiSlice.reducerPath]: apiSlice.reducer,
   user: userReducer,
   password: passwordReducer,
   listing: listingReducer,

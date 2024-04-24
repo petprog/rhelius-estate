@@ -7,30 +7,27 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
-import { app } from "../firebase";
+import { app } from "../../firebase";
 import {
-  updateUserStart,
   updateUserSuccess,
-  updateUserFailure,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure,
-  resetUser,
-  signOutStart,
   signOutSuccess,
-  signOutFailure,
-} from "../redux/user/userSlice";
-import { updateListing } from "../redux/listing/listingSlice";
-import { toggleProfilePassword } from "../redux/password/passwordSlice";
+  deleteUserSuccess,
+} from "../../redux/user/userSlice";
+import { updateListing } from "../../redux/listing/listingSlice";
+import { toggleProfilePassword } from "../../redux/password/passwordSlice";
 import { Link, useNavigate } from "react-router-dom";
 
-import ProfileListingLoading from "../components/ProfileListingLoading";
-import ProfileListingTile from "../components/ProfileListingTile";
+import ProfileListingLoading from "../../components/ProfileListingLoading";
+import ProfileListingTile from "../../components/ProfileListingTile";
+import { useUpdateUserMutation, useDeleteUserMutation } from "./usersApiSlice";
+
+import { useLogoutMutation } from "../auth/authApiSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import useInternetStatus from "../../hooks/useInternetStatus";
 
 export default function Profile() {
-  const { currentUser, loading, error, updateSuccess } = useSelector(
-    (state) => state.user
-  );
+  const { currentUser } = useSelector((state) => state.user);
   const { showProfilePassword } = useSelector((state) => state.password);
   const [formData, setFormData] = useState({});
   const [file, setFile] = useState(undefined);
@@ -42,6 +39,11 @@ export default function Profile() {
   const dispatch = useDispatch();
   const [userListings, setUserListings] = useState([]);
   const navigate = useNavigate();
+  const isOnline = useInternetStatus();
+
+  const [updateUser, { isLoading: loading }] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
+  const [logout] = useLogoutMutation();
 
   const handleChange = (e) => {
     setFormData({
@@ -52,24 +54,26 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(updateUserStart());
-    dispatch(resetUser());
-    try {
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+    if (!isOnline) {
+      toast.error("No Internet", {
+        position: "top-right",
       });
-      const data = await res.json();
-      if (data.success) {
-        dispatch(updateUserSuccess(data));
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      dispatch(updateUserFailure(error.message));
+      return;
+    }
+    try {
+      const data = await updateUser({
+        ...formData,
+        userId: currentUser._id,
+      }).unwrap();
+      dispatch(updateUserSuccess(data));
+      toast.success("Profile Updated", {
+        position: "top-right",
+      });
+    } catch (err) {
+      console.log(err.data?.message);
+      toast.error("Not successful", {
+        position: "top-right",
+      });
     }
   };
 
@@ -105,37 +109,39 @@ export default function Profile() {
   };
 
   const handleDeleteAccount = async () => {
-    dispatch(deleteUserStart());
-    dispatch(resetUser());
-    try {
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: "DELETE",
+    if (!isOnline) {
+      toast.error("No Internet", {
+        position: "top-right",
       });
-      const data = await res.json();
-      if (data.success) {
-        dispatch(deleteUserSuccess());
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
+      return;
+    }
+    try {
+      await deleteUser({
+        id: currentUser._id,
+      }).unwrap();
+      dispatch(deleteUserSuccess());
+      toast.success("Account Deleted", {
+        position: "top-right",
+      });
+      navigate("/");
+    } catch (err) {
+      console.log(err.data?.message);
+      toast.error(`Not successful`, {
+        position: "top-right",
+      });
     }
   };
 
   const handleSignout = async () => {
-    dispatch(signOutStart());
-    dispatch(resetUser());
-    try {
-      const res = await fetch("/api/auth/signout");
-      const data = await res.json();
-      if (data.success) {
-        dispatch(signOutSuccess());
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      dispatch(signOutFailure(error.message));
+    if (!isOnline) {
+      toast.error("No Internet", {
+        position: "top-right",
+      });
+      return;
     }
+    logout;
+    dispatch(signOutSuccess());
+    navigate("/");
   };
 
   useEffect(() => {
@@ -215,7 +221,7 @@ export default function Profile() {
         <p className="text-sm self-center">
           {fileUploadError ? (
             <span className="text-red-700">
-              Error Image Uploa (image must be less than 2mb)
+              Error Image Upload (image must be less than 2mb)
             </span>
           ) : null}
           {filePerc > 0 && filePerc < 100 && (
@@ -293,10 +299,7 @@ export default function Profile() {
           Sign out
         </span>
       </div>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
-      {updateSuccess && (
-        <p className="text-green-700 mt-5">User is updated successfully!</p>
-      )}
+
       <button
         type="button"
         onClick={handleShowListings}
@@ -323,6 +326,7 @@ export default function Profile() {
           ))}
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

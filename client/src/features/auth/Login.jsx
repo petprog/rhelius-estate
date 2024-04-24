@@ -1,23 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  signInStart,
-  signInFailure,
-  signInSuccess,
-  resetUser,
-} from "../redux/user/userSlice";
-
-import { toggleLoginPassword } from "../redux/password/passwordSlice";
-import OAuth from "../components/OAuth";
+import { signInSuccess } from "../../redux/user/userSlice";
+import { toggleLoginPassword } from "../../redux/password/passwordSlice";
+import OAuth from "../../components/OAuth";
+import { useLoginMutation } from "./authApiSlice";
 
 export default function Login() {
   const [formData, setFormData] = useState({});
-  const { loading, error } = useSelector((state) => state.user);
+  const [error, setError] = useState(null);
   const { showLoginPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [login, { isLoading: loading }] = useLoginMutation();
+
+  useEffect(() => {
+    setError("");
+  }, [formData]);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,25 +29,20 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(resetUser());
-    dispatch(signInStart());
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success) {
-        dispatch(signInSuccess(data));
-        navigate("/");
+      const data = await login({ ...formData }).unwrap();
+      dispatch(signInSuccess(data));
+      navigate("/");
+    } catch (err) {
+      if (!err.status) {
+        setError("No Server Response");
+      } else if (err.status === 400) {
+        setError("email and password required");
+      } else if (err.status === 401) {
+        setError("Unauthorized");
       } else {
-        throw new Error(data.message);
+        setError(err.data?.message);
       }
-    } catch (error) {
-      dispatch(signInFailure(error.message));
     }
   };
 

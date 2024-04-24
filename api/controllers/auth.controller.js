@@ -13,6 +13,16 @@ export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
   if (!email || !password || !username)
     return next(errorHandler(400, "email, password and username are required"));
+
+  // Check for duplicate
+  const duplicate = await User.findOne({ username })
+    .collation({ locale: "en", strength: 2 })
+    .lean()
+    .exec();
+
+  if (duplicate) {
+    return res.status(409).send({ message: "Duplicate username" });
+  }
   const hashedPassword = hashPassword(password);
   const newUser = new User({
     username,

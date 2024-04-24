@@ -3,34 +3,28 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { signInSuccess } from "../redux/user/userSlice";
+import { useGoogleMutation } from "../features/auth/authApiSlice";
 
 export default function OAuth() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [google] = useGoogleMutation();
+
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
-
       const result = await signInWithPopup(auth, provider);
       const { displayName, email, photoURL } = result.user;
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: displayName,
-          email: email,
-          photo: photoURL,
-        }),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (data.success) {
-        dispatch(signInSuccess(data));
-        navigate("/");
-      }
+      console.log({ displayName, email, photoURL });
+      const data = await google({
+        name: displayName,
+        email,
+        photo: photoURL,
+      }).unwrap();
+      dispatch(signInSuccess(data));
+      navigate("/");
     } catch (err) {
       console.log("could not sign in with google", err);
     }

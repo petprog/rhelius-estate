@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { toggleSignUpPassword } from "../redux/password/passwordSlice";
+import { toggleSignUpPassword } from "../../redux/password/passwordSlice";
 import { useDispatch, useSelector } from "react-redux";
-import OAuth from "../components/OAuth";
+import OAuth from "../../components/OAuth";
+import { useSignupMutation } from "./authApiSlice";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const { showSignUpPassword } = useSelector((state) => state.password);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [signup, { isLoading: loading }] = useSignupMutation();
+
+  useEffect(() => {
+    setError("");
+  }, [formData]);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,27 +28,20 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (data.success) {
-        navigate("/login");
+      await signup({ ...formData }).unwrap();
+      navigate("/login");
+    } catch (err) {
+      if (!err.status) {
+        setError("No Server Response");
+      } else if (err.status === 400) {
+        setError("email and password required");
+      } else if (err.status === 401) {
+        setError("Unauthorized");
       } else {
-        throw new Error(data.message);
+        setError(err.data?.message);
       }
-    } catch (error) {
-      setError(error.message);
     }
-    setLoading(false);
   };
 
   const togglePasswordVisibility = (e) => {
