@@ -5,7 +5,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../firebase";
+import { app } from "../../firebase";
 import { FaTrash, FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -13,10 +13,10 @@ import {
   useGetListingMutation,
   useAddNewListingMutation,
   useUpdateListingMutation,
-} from "../features/listings/listingApiSlice";
+} from "./listingApiSlice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useInternetStatus from "../hooks/useInternetStatus";
+import useInternetStatus from "../../hooks/useInternetStatus";
 
 export default function CreateOrUpdateListing() {
   const navigate = useNavigate();

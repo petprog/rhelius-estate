@@ -15,41 +15,33 @@ import {
   FaShare,
 } from "react-icons/fa";
 import Contact from "../components/Contact";
+import { useGetListingMutation } from "../features/listings/listingApiSlice";
 
 export default function Listing() {
   SwiperCore.use([Navigation]);
   const [listing, setListing] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState(false);
 
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
+  const [getListing, { isLoading: loading }] = useGetListingMutation();
 
   useEffect(() => {
     const fetchListing = async () => {
-      setLoading(true);
       setError(null);
       try {
-        // await new Promise((resolve) => setTimeout(resolve, 10000));
-        const res = await fetch(`/api/listing/get/${params.listingId}`);
-        const data = await res.json();
-        setLoading(false);
-        if (data.success) {
-          setListing(data.data);
-          setError(null);
-        } else {
-          throw new Error("Failed to load listing");
-        }
+        const result = await getListing({ id: params.listingId });
+        const data = result.data.data;
+        setListing(data);
       } catch (error) {
-        setLoading(false);
         setError(error.message);
       }
     };
 
     fetchListing();
-  }, [params.listingId]);
+  }, [params.listingId, getListing]);
   return (
     <main className="min-h-[calc(100vh-72px)]">
       {loading && <ListingDetailsLoading />}
