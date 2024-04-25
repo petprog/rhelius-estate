@@ -9,10 +9,25 @@ import { app } from "../firebase";
 import { FaTrash, FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetListingMutation,
+  useAddNewListingMutation,
+  useUpdateListingMutation,
+} from "../features/listings/listingApiSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import useInternetStatus from "../hooks/useInternetStatus";
 
 export default function CreateOrUpdateListing() {
   const navigate = useNavigate();
   const params = useParams();
+  const isOnline = useInternetStatus();
+
+  const [addNewListing, { isLoading: loading }] = useAddNewListingMutation();
+  const [getListing] = useGetListingMutation();
+  const [updateListing, { isLoading: updateLoading }] =
+    useUpdateListingMutation();
+
   const { currentUser } = useSelector((state) => state.user);
   const isNewListing = params.listingId === "new";
   const [validPath, setValidPath] = useState(isNewListing);
@@ -30,8 +45,7 @@ export default function CreateOrUpdateListing() {
     parking: false,
     furnished: false,
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
   const [success, setSuccess] = useState(false);
   const [showImages, setShowImages] = useState(false);
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
@@ -43,22 +57,21 @@ export default function CreateOrUpdateListing() {
     const fetchingListing = async () => {
       const listingId = params.listingId;
       try {
-        const res = await fetch(`/api/listing/get/${listingId}`);
-        const data = await res.json();
-        if (data.success) {
-          if (data.data.userRef === currentUser._id) {
-            setValidPath(true);
-            setFormData(data.data);
-          }
+        const result = await getListing({ id: listingId });
+        const data = result.data.data;
+        if (data.userRef === currentUser._id) {
+          setValidPath(true);
+          setFormData(data);
         }
       } catch (error) {
         console.log(error);
       }
     };
+
     if (!isNewListing) {
       fetchingListing();
     }
-  }, [isNewListing, params.listingId, currentUser._id]);
+  }, [isNewListing, params.listingId, currentUser._id, getListing]);
 
   const handleChange = (e) => {
     if (e.target.id === "sale" || e.target.id === "rent") {
@@ -145,44 +158,45 @@ export default function CreateOrUpdateListing() {
   };
 
   const handleListing = async (isNewListing, listingId) => {
-    setLoading(true);
-    setError(null);
     setSuccess(false);
-
+    if (!isOnline) {
+      toast.error("No Internet", {
+        position: "top-right",
+      });
+      return;
+    }
     try {
       if (formData.imageUrls.length === 0) {
-        throw new Error("You must upload atleast 1 image");
+        toast.error(`Upload an image`, {
+          position: "top-right",
+        });
+        return;
       }
       if (+formData.regularPrice < +formData.discountPrice) {
-        throw new Error("Discount price must be lower than regular price");
+        toast.error(`Discount price must be lower than regular price`, {
+          position: "top-right",
+        });
+        return;
       }
 
-      const url = isNewListing
-        ? "/api/listing/create"
-        : `/api/listing/update/${listingId}`;
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, userRef: currentUser._id }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setLoading(false);
-        setError(null);
-        setSuccess(true);
-        navigate(isNewListing ? `/listings/${data.data._id}` : `/profile`);
+      if (isNewListing) {
+        const data = await addNewListing({
+          ...formData,
+          userRef: currentUser._id,
+        }).unwrap();
+        navigate(`/listings/${data.data._id}`);
       } else {
-        throw new Error(data.message);
+        await updateListing({
+          ...formData,
+          id: listingId,
+        }).unwrap();
+        navigate(`/profile`);
       }
     } catch (error) {
-      setError(error.message);
-      setLoading(false);
-      setSuccess(false);
+      console.log(error.data?.message);
+      toast.error(`Not successful`, {
+        position: "top-right",
+      });
     }
   };
 
@@ -422,16 +436,15 @@ export default function CreateOrUpdateListing() {
                   ))}
               </div>
               <button
-                disabled={loading || imageUploadLoading}
+                disabled={loading || updateLoading || imageUploadLoading}
                 className="bg-slate-700 text-white text-center p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-70"
               >
-                {loading
+                {loading || updateLoading
                   ? "Loading..."
                   : isNewListing
                   ? "Create Listing"
                   : "Update Listing"}
               </button>
-              {error && <p className="text-red-500 mt-2">{error}</p>}
               {success && (
                 <p className="text-green-700 mt-2">
                   A listing is added successfully!
@@ -439,6 +452,7 @@ export default function CreateOrUpdateListing() {
               )}
             </div>
           </form>
+          <ToastContainer />
         </main>
       )}
     </>

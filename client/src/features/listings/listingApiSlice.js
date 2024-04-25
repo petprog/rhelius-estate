@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { createSelector, createEntityAdapter } from "@reduxjs/toolkit";
-import { apiSlice } from "../../app/api/apiSlice";
+import { apiSlice } from "../../redux/api/apiSlice";
 
 const listingsAdapter = createEntityAdapter({
   sortComparer: (a, b) =>
@@ -8,10 +8,6 @@ const listingsAdapter = createEntityAdapter({
 });
 
 const initialState = listingsAdapter.getInitialState();
-
-const listingAdapter = createEntityAdapter({});
-
-const initialListingState = listingAdapter.getInitialState();
 
 export const listingsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -42,10 +38,6 @@ export const listingsApiSlice = apiSlice.injectEndpoints({
       query: ({ id }) => ({
         url: `listing/get/${id}`,
       }),
-      transformResponse: (responseData) => {
-        const loadedListing = { ...responseData, id: responseData._id };
-        return listingAdapter.setOne(initialListingState, loadedListing);
-      },
     }),
     addNewListing: builder.mutation({
       query: (initialListing) => ({
@@ -59,7 +51,7 @@ export const listingsApiSlice = apiSlice.injectEndpoints({
     }),
     updateListing: builder.mutation({
       query: (initialListing) => ({
-        url: `listing/${initialListing.id}`,
+        url: `listing/update/${initialListing.id}`,
         method: "POST",
         body: {
           ...initialListing,
@@ -106,16 +98,4 @@ export const {
   // Pass in a selector that returns the listings slice of state
 } = listingsAdapter.getSelectors(
   (state) => selectListingsData(state) ?? initialState
-);
-
-export const selectListingResult =
-  listingsApiSlice.endpoints.getListing.select();
-
-const selectListingData = createSelector(
-  selectListingResult,
-  (listingResult) => listingResult.data
-);
-
-export const { selectById: selectListingById } = listingAdapter.getSelectors(
-  (state) => selectListingData(state) ?? initialListingState
 );
