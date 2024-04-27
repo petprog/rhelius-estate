@@ -6,7 +6,7 @@ import SignUp from "../features/auth/SignUp";
 import CreateOrUpdateListing from "../features/listings/CreateOrUpdateListing";
 import Missing from "./Missing";
 import Listing from "../features/listings/Listing";
-import Search from "./Search";
+import Search from "../features/search/Search";
 
 export {
   Home,

@@ -17,24 +17,24 @@ export default function App() {
     <div className="min-h-screen">
       <Header />
       <Routes>
-        <Route element={<Prefetch />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/listings/:listingId" element={<Listing />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-          <Route element={<PrivateRoute />}>
-            <Route
-              path="/listing/:listingId"
-              element={<CreateOrUpdateListing />}
-            />
-          </Route>
-          <Route path="/search" element={<Search />} />
-          <Route path="*" element={<Missing />} />
+        {/* <Route element={<Prefetch />}> */}
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/listings/:listingId" element={<Listing />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
         </Route>
+        <Route element={<PrivateRoute />}>
+          <Route
+            path="/listing/:listingId"
+            element={<CreateOrUpdateListing />}
+          />
+        </Route>
+        <Route path="/search" element={<Search />} />
+        <Route path="*" element={<Missing />} />
+        {/* </Route> */}
       </Routes>
     </div>
   );

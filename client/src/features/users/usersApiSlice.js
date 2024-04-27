@@ -17,7 +17,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         },
       }),
       transformResponse: (responseData) => {
-        const loadedListing = responseData.map((listing) => ({
+        const loadedListing = responseData.data.map((listing) => ({
           ...listing,
           id: listing._id,
         }));
@@ -42,7 +42,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: `user/get/${id}`,
       }),
       transformResponse: (responseData) => {
-        const loadedUser = { ...responseData, id: responseData._id };
+        const loadedUser = { ...responseData.data, id: responseData.data._id };
         return userAdapter.setOne(initialUserState, loadedUser);
       },
     }),

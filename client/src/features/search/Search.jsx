@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ListingLoading from "../components/ListingLoading";
-import ListingTile from "../components/ListingTile";
+import ListingLoading from "../../components/ListingLoading";
+import ListingTile from "../../components/ListingTile";
+import { useSearchListingsMutation } from "../listings/listingApiSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Search() {
   const navigate = useNavigate();
+  const [searchListings, { isLoading: loading }] = useSearchListingsMutation();
   const [sidebarData, setSidebarData] = useState({
     searchTerm: "",
     type: "all",
@@ -15,9 +19,7 @@ export default function Search() {
     order: "desc",
   });
 
-  const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
-  const [, setError] = useState(null);
   const [filter, setFilter] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const limit = 9;
@@ -119,22 +121,18 @@ export default function Search() {
     }
 
     const fetchListings = async () => {
-      setLoading(true);
-      setError(null);
       setShowMore(false);
       try {
         const searchQuery = urlParams.toString();
-        const res = await fetch(`/api/listing/get?${searchQuery}`);
-        const data = await res.json();
+        const data = await searchListings(searchQuery).unwrap();
         if (data.data.length >= limit) {
           setShowMore(true);
         }
-        setError(null);
         setListings(data.data);
-        setLoading(false);
       } catch (error) {
-        setLoading(false);
-        setError(error.message);
+        toast.error("Error occured", {
+          position: "top-right",
+        });
       }
     };
 
@@ -301,6 +299,7 @@ export default function Search() {
           </div>
         </>
       </main>
+      <ToastContainer />
     </div>
   );
 }

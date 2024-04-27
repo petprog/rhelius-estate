@@ -1,4 +1,4 @@
-import { store } from "../../app/store";
+import { store } from "../../redux/store";
 import { listingsApiSlice } from "../listings/listingApiSlice";
 import { usersApiSlice } from "../users/usersApiSlice";
 import { useEffect } from "react";
