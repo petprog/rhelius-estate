@@ -5,7 +5,7 @@ import Profile from "../features/users/Profile";
 import SignUp from "../features/auth/SignUp";
 import CreateOrUpdateListing from "../features/listings/CreateOrUpdateListing";
 import Missing from "./Missing";
-import Listing from "./Listing";
+import Listing from "../features/listings/Listing";
 import Search from "./Search";
 
 export {
