@@ -76,9 +76,8 @@ export default function Search() {
     urlParams.set("startIndex", startIndex);
     const searchQuery = urlParams.toString();
     try {
-      const res = await fetch(`/api/listing/get?${searchQuery}`);
-      const resultData = await res.json();
-      const data = resultData.data;
+      const result = await searchListings(searchQuery).unwrap();
+      const data = result.data;
       if (data.length < limit) {
         setShowMore(false);
       } else {
@@ -124,11 +123,12 @@ export default function Search() {
       setShowMore(false);
       try {
         const searchQuery = urlParams.toString();
-        const data = await searchListings(searchQuery).unwrap();
-        if (data.data.length >= limit) {
+        const result = await searchListings(searchQuery).unwrap();
+        const data = result.data;
+        if (data.length >= limit) {
           setShowMore(true);
         }
-        setListings(data.data);
+        setListings(data);
       } catch (error) {
         toast.error("Error occured", {
           position: "top-right",
