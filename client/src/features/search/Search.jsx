@@ -85,7 +85,9 @@ export default function Search() {
       }
       setListings([...listings, ...data]);
     } catch (error) {
-      console.error(error);
+      toast.error(`Error occured; ${error.message}`, {
+        position: "top-right",
+      });
     }
   };
 
@@ -130,7 +132,7 @@ export default function Search() {
         }
         setListings(data);
       } catch (error) {
-        toast.error("Error occured", {
+        toast.error(`Error occured; ${error.message}`, {
           position: "top-right",
         });
       }

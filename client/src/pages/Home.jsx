@@ -6,9 +6,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useSearchListingsMutation } from "../features/listings/listingApiSlice";
 
 export default function Home() {
   SwiperCore.use([Navigation]);
+  const [searchListings] = useSearchListingsMutation();
   const [offerListings, setOfferListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
@@ -19,29 +23,35 @@ export default function Home() {
   useEffect(() => {
     const fetchOfferListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?offer=true&limit=4");
-        const data = await res.json();
-        setOfferListings(data.data);
+        const result = await searchListings("offer=true&limit=4").unwrap();
+        const data = result.data;
+        setOfferListings(data);
       } catch (error) {
-        console.log(error);
+        toast.error(`Error occured; ${error.message}`, {
+          position: "top-right",
+        });
       }
     };
     const fetchRentListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?type=rent&limit=4");
-        const data = await res.json();
-        setRentListings(data.data);
+        const result = await searchListings("type=rent&limit=4").unwrap();
+        const data = result.data;
+        setRentListings(data);
       } catch (error) {
-        console.log(error);
+        toast.error(`Error occured; ${error.message}`, {
+          position: "top-right",
+        });
       }
     };
     const fetchSaleListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?type=sale&limit=4");
-        const data = await res.json();
-        setSaleListings(data.data);
+        const result = await searchListings("type=sale&limit=4").unwrap();
+        const data = result.data;
+        setSaleListings(data);
       } catch (error) {
-        console.log(error);
+        toast.error(`Error occured; ${error.message}`, {
+          position: "top-right",
+        });
       }
     };
     fetchOfferListings();
@@ -153,6 +163,7 @@ export default function Home() {
           </div>
         </section>
       )}
+      <ToastContainer />
     </main>
   );
 }
