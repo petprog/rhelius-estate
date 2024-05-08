@@ -9,7 +9,7 @@ export const listingsApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     getListing: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `listing/get/${id}`,
       }),
     }),
@@ -36,7 +36,7 @@ export const listingsApiSlice = apiSlice.injectEndpoints({
       ],
     }),
     deleteListing: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `listing/delete/${id}`,
         method: "DELETE",
       }),

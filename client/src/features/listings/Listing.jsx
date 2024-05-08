@@ -32,7 +32,7 @@ export default function Listing() {
     const fetchListing = async () => {
       setError(null);
       try {
-        const result = await getListing({ id: params.listingId }).unwrap();
+        const result = await getListing(params.listingId).unwrap();
         const data = result.data;
         setListing(data);
       } catch (error) {

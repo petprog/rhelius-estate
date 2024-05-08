@@ -19,7 +19,13 @@ import { Link, useNavigate } from "react-router-dom";
 
 import ProfileListingLoading from "../../components/ProfileListingLoading";
 import ProfileListingTile from "../../components/ProfileListingTile";
-import { useUpdateUserMutation, useDeleteUserMutation } from "./usersApiSlice";
+import {
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useGetUserListingsMutation,
+} from "./usersApiSlice";
+
+import { useDeleteListingMutation } from "../listings/listingApiSlice";
 
 import { useLogoutMutation } from "../auth/authApiSlice";
 import { ToastContainer, toast } from "react-toastify";
@@ -34,8 +40,7 @@ export default function Profile() {
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const fileRef = useRef(null);
-  const [showListingsError, setShowListingsError] = useState(null);
-  const [loadingListings, setLoadingListings] = useState(false);
+
   const dispatch = useDispatch();
   const [userListings, setUserListings] = useState([]);
   const navigate = useNavigate();
@@ -43,7 +48,10 @@ export default function Profile() {
 
   const [updateUser, { isLoading: loading }] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
+  const [getUserListings, { isLoading: loadingListings }] =
+    useGetUserListingsMutation();
   const [logout] = useLogoutMutation();
+  const [deleteListing] = useDeleteListingMutation();
 
   const handleChange = (e) => {
     setFormData({
@@ -116,9 +124,7 @@ export default function Profile() {
       return;
     }
     try {
-      await deleteUser({
-        id: currentUser._id,
-      }).unwrap();
+      await deleteUser(currentUser._id).unwrap();
       dispatch(deleteUserSuccess());
       toast.success("Account Deleted", {
         position: "top-right",
@@ -153,39 +159,28 @@ export default function Profile() {
 
   const handleShowListings = async () => {
     setUserListings([]);
-    setLoadingListings(true);
-    setShowListingsError(null);
     try {
-      const res = await fetch(`/api/user/listings/${currentUser._id}`);
-      const data = await res.json();
-      if (data.success) {
-        setUserListings(data.data);
-        setLoadingListings(false);
-      } else {
-        throw new Error(data.message);
-      }
+      const result = await getUserListings(currentUser._id).unwrap();
+      const data = result.data;
+      console.log(data);
+      setUserListings(data);
     } catch (error) {
-      setShowListingsError(error.message);
-      setLoadingListings(false);
+      toast.error(`Error occured; ${error.message}`, {
+        position: "top-right",
+      });
     }
   };
 
   const handleDeleteListing = async (listingId) => {
-    setShowListingsError(null);
     try {
-      const res = await fetch(`/api/listing/delete/${listingId}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.success) {
-        setUserListings((prev) =>
-          prev.filter((listing) => listing._id !== listingId)
-        );
-      } else {
-        throw new Error(data.message);
-      }
+      await deleteListing(listingId);
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
     } catch (error) {
-      setShowListingsError(error.message);
+      toast.error(`Error occured; ${error.message}`, {
+        position: "top-right",
+      });
     }
   };
 
@@ -307,9 +302,6 @@ export default function Profile() {
       >
         Show Listings
       </button>
-      {showListingsError && (
-        <p className="text-red-500 mt-5">{showListingsError}</p>
-      )}
       {loadingListings && <ProfileListingLoading />}
       {userListings.length > 0 && (
         <div>

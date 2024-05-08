@@ -57,7 +57,7 @@ export default function CreateOrUpdateListing() {
     const fetchingListing = async () => {
       const listingId = params.listingId;
       try {
-        const result = await getListing({ id: listingId });
+        const result = await getListing(listingId);
         const data = result.data.data;
         if (data.userRef === currentUser._id) {
           setValidPath(true);
